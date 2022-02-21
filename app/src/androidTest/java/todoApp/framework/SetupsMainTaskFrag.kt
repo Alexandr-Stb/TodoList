@@ -11,6 +11,7 @@ import com.example.android.architecture.blueprints.todoapp.data.source.remote.Ta
 import com.example.android.architecture.blueprints.todoapp.tasks.TasksActivity
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
+import todoApp.framework.TasksData.countTasks
 
 object SetupsMainTaskFrag {
     private val filterBtn = withId(R.id.menu_filter)
@@ -22,8 +23,8 @@ object SetupsMainTaskFrag {
         filterTitle, withText(R.string.nav_active)
     )
 
-    private val filterCompletedTasksBtn = allOf(
-        filterTitle,withText(R.string.nav_completed)
+    private val filterCompleteTasksBtn = allOf(
+        filterTitle, withText(R.string.nav_completed)
     )
 
     fun runActivityInUiThread(activityRule: ActivityTestRule<TasksActivity>) {
@@ -41,21 +42,21 @@ object SetupsMainTaskFrag {
         }
     }
 
-    fun createTask(task: Task){
+    fun createTask(task: Task) {
         runBlocking {
             ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
                 .saveTask(task)
         }
     }
 
-    fun createManyTask(repeat:Int){
-        for(i in 0..repeat){
-            if(i%2==0) {
+    fun createManyTask() {
+        for (i in 0..countTasks) {
+            if (i % 2 == 0) {
                 runBlocking {
                     ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
                         .saveTask(Task("Task:$i", "Description task $i", true))
                 }
-            }else{
+            } else {
                 runBlocking {
                     ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
                         .saveTask(Task("Task:$i", "Description task $i", false))
@@ -65,8 +66,15 @@ object SetupsMainTaskFrag {
 
     }
 
-    fun filterActiveTasks(){
+    fun filterActiveTasks() {
         filterBtn.click()
         filterActiveTasksBtn.click()
     }
+
+    fun filterCompleteTasks() {
+        filterBtn.click()
+        filterCompleteTasksBtn.click()
+    }
+
+
 }

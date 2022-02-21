@@ -11,6 +11,7 @@ import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import org.hamcrest.Matchers.allOf
 import todoApp.framework.FragDisplayed
+import todoApp.framework.TasksData
 
 object MainTaskScreen : FragDisplayed<MainTaskScreen> {
 
@@ -46,8 +47,44 @@ object MainTaskScreen : FragDisplayed<MainTaskScreen> {
             getTaskItem(task).getChild(completeCheckBox).isNotChecked()
     }
 
-    fun assertFilterActiveTasks(){
-        allOf(filteringText,withText(R.string.label_active)).isDisplayed()
+    fun assertFilterTasks(isCompleted: Boolean) {
+        if (isCompleted) {
+            getTaskItem(getFirstLastTaskTitle(first = true, isComplete = true)!!)
+                .getChild(completeCheckBox).isChecked()
+            getTaskItem(getFirstLastTaskTitle(first = false, isComplete = true)!!)
+                .getChild(completeCheckBox).isChecked()
+        } else {
+            getTaskItem(getFirstLastTaskTitle(first = true, isComplete = false)!!)
+                .getChild(completeCheckBox).isNotChecked()
+            getTaskItem(getFirstLastTaskTitle(first = false, isComplete = false)!!)
+                .getChild(completeCheckBox).isNotChecked()
+        }
+    }
+
+    private fun getFirstLastTaskTitle(first: Boolean, isComplete: Boolean): Task? {
+        if (first) {
+            return when {
+                isComplete -> createSpecificTask(0)
+                else -> createSpecificTask(1)
+            }
+        } else {
+            when {
+                (isComplete && TasksData.countTasks % 2 == 0) ||
+                        (!isComplete && TasksData.countTasks % 2 != 0) -> return createSpecificTask(
+                    TasksData.countTasks
+                )
+
+                (isComplete && TasksData.countTasks % 2 != 0) ||
+                        (!isComplete && TasksData.countTasks % 2 == 0) -> return createSpecificTask(
+                    TasksData.countTasks - 1
+                )
+            }
+        }
+        return null
+    }
+
+    private fun createSpecificTask(num: Int): Task {
+        return Task("Task:$num", "Description task $num", true)
     }
 
     private fun getTaskItem(task: Task): UltronRecyclerViewItem {

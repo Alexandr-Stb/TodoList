@@ -27,6 +27,7 @@ class TaskActivityTest {
         private const val CREATE_ACTIVE_TASK = "Create new active task"
         private const val CREATE_MANY_TASK = "Create many task"
         private const val FILTER_ACTIVE = "Filter active task"
+        private const val FILTER_COMPLETE = "Filter complete task"
     }
 
     private val activityRule = ActivityTestRule(TasksActivity::class.java)
@@ -45,23 +46,27 @@ class TaskActivityTest {
             runActivityInUiThread(activityRule)
             createTask(completeTask)
         }
-        .add(CREATE_ACTIVE_TASK){
+        .add(CREATE_ACTIVE_TASK) {
             runActivityInUiThread(activityRule)
             createTask(activeTask)
         }
-        .add(CREATE_MANY_TASK){
+        .add(CREATE_MANY_TASK) {
             runActivityInUiThread(activityRule)
-            createManyTask(15)
+            createManyTask()
         }
     private val actionsOnUi = SetUpRule()
-        .add(FILTER_ACTIVE){
+        .add(FILTER_ACTIVE) {
             runActivityInUiThread(activityRule)
             SetupsMainTaskFrag.filterActiveTasks()
+        }
+        .add(FILTER_COMPLETE) {
+            runActivityInUiThread(activityRule)
+            SetupsMainTaskFrag.filterCompleteTasks()
         }
 
 
     init {
-        ruleSequence.add(activeOnTasks,activityRule,actionsOnUi)
+        ruleSequence.add(activeOnTasks, activityRule, actionsOnUi)
     }
 
 // Open fragments tests
@@ -73,14 +78,14 @@ class TaskActivityTest {
     }
 
     @Test
-    fun openDrawerTest(){
+    fun openDrawerTest() {
         MainTaskScreen.openDrawerFragment()
         DrawerFragment.fragIsDisplayed()
     }
 
     @SetUp(DELETE_ALL_TASKS, CREATE_ACTIVE_TASK)
     @Test
-    fun openTaskDetailsFragTest(){
+    fun openTaskDetailsFragTest() {
         MainTaskScreen.openTaskDetails(activeTask)
         TaskDetailsFragment.fragIsDisplayed()
     }
@@ -97,8 +102,14 @@ class TaskActivityTest {
 
     @SetUp(DELETE_ALL_TASKS, CREATE_MANY_TASK, FILTER_ACTIVE)
     @Test
-    fun assertFilterActiveTasksTest(){
-        MainTaskScreen.assertFilterActiveTasks()
+    fun assertFilterActiveTasksTest() {
+        MainTaskScreen.assertFilterTasks(false)
+    }
+
+    @SetUp(DELETE_ALL_TASKS, CREATE_MANY_TASK, FILTER_COMPLETE)
+    @Test
+    fun assertFilterCompleteTasksTest() {
+        MainTaskScreen.assertFilterTasks(true)
     }
 
 }
