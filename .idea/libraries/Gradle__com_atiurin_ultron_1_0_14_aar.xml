@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="Gradle: com.atiurin:ultron:1.0.14@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/bdf9b6b4837805f24135dddbe6d47b8e/jetified-ultron-1.0.14/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/bdf9b6b4837805f24135dddbe6d47b8e/jetified-ultron-1.0.14/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/bdf9b6b4837805f24135dddbe6d47b8e/jetified-ultron-1.0.14/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.atiurin/ultron/1.0.14/3f5f115f9210f06924816843eb6691ebb8feaad9/ultron-1.0.14-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.atiurin/ultron/1.0.14/8089a9e1647a8f1deacb223cd2820dd2840a4695/ultron-1.0.14-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
