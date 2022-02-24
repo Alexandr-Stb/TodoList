@@ -3,7 +3,7 @@ package todoApp.framework
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import com.atiurin.ultron.extensions.click
+import com.atiurin.ultron.extensions.*
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.ServiceLocator
 import com.example.android.architecture.blueprints.todoapp.data.Task
@@ -37,14 +37,14 @@ object SetupsMainTaskFrag {
 
     fun deleteAllTask() {
         runBlocking {
-            ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
+            ServiceLocator.provideTasksRepository()
                 .deleteAllTasks()
         }
     }
 
     fun createTask(task: Task) {
         runBlocking {
-            ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
+            ServiceLocator.provideTasksRepository()
                 .saveTask(task)
         }
     }
@@ -53,13 +53,13 @@ object SetupsMainTaskFrag {
         for (i in 0..countTasks) {
             if (i % 2 == 0) {
                 runBlocking {
-                    ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
-                        .saveTask(Task("Task:$i", "Description task $i", true))
+                    ServiceLocator.provideTasksRepository()
+                        .saveTask(TasksData.createTask(i,true))
                 }
             } else {
                 runBlocking {
-                    ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
-                        .saveTask(Task("Task:$i", "Description task $i", false))
+                    ServiceLocator.provideTasksRepository()
+                        .saveTask(TasksData.createTask(i,false))
                 }
             }
         }
@@ -68,12 +68,32 @@ object SetupsMainTaskFrag {
 
     fun filterActiveTasks() {
         filterBtn.click()
-        filterActiveTasksBtn.click()
+        if(filterActiveTasksBtn.isSuccess { withTimeout(1).isDisplayed() })
+            filterActiveTasksBtn.click()
+        else{
+            filterBtn.click()
+            filterActiveTasksBtn.click()
+            }
     }
 
     fun filterCompleteTasks() {
         filterBtn.click()
-        filterCompleteTasksBtn.click()
+        if(filterCompleteTasksBtn.isSuccess { withTimeout(500).isDisplayed() })
+            filterCompleteTasksBtn.click()
+        else{
+            filterBtn.click()
+            filterCompleteTasksBtn.click()
+        }
+    }
+
+    fun filterAllTasks() {
+        filterBtn.click()
+        if(filterAllTasksBtn.isSuccess { withTimeout(1).isDisplayed() })
+            filterAllTasksBtn.click()
+        else{
+            filterBtn.click()
+            filterAllTasksBtn.click()
+        }
     }
 
 

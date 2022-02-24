@@ -5,6 +5,7 @@ import com.atiurin.ultron.testlifecycle.rulesequence.RuleSequence
 import com.atiurin.ultron.testlifecycle.setupteardown.SetUp
 import com.atiurin.ultron.testlifecycle.setupteardown.SetUpRule
 import com.example.android.architecture.blueprints.todoapp.tasks.TasksActivity
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import todoApp.framework.SetupsMainTaskFrag
@@ -28,6 +29,7 @@ class TaskActivityTest {
         private const val CREATE_MANY_TASK = "Create many task"
         private const val FILTER_ACTIVE = "Filter active task"
         private const val FILTER_COMPLETE = "Filter complete task"
+        private const val FILTER_ALL = "Filter all tasks"
     }
 
     private val activityRule = ActivityTestRule(TasksActivity::class.java)
@@ -63,6 +65,10 @@ class TaskActivityTest {
             runActivityInUiThread(activityRule)
             SetupsMainTaskFrag.filterCompleteTasks()
         }
+        .add(FILTER_ALL){
+            runActivityInUiThread(activityRule)
+            SetupsMainTaskFrag.filterAllTasks()
+        }
 
 
     init {
@@ -81,21 +87,22 @@ class TaskActivityTest {
     fun openDrawerTest() {
         MainTaskScreen.openDrawerFragment()
         DrawerFragment.fragIsDisplayed()
+
     }
 
     @SetUp(DELETE_ALL_TASKS, CREATE_ACTIVE_TASK)
     @Test
     fun openTaskDetailsFragTest() {
-        MainTaskScreen.openTaskDetails(activeTask)
+        MainTaskScreen.openTaskDetails()
         TaskDetailsFragment.fragIsDisplayed()
     }
 
     //Tasks Tests
 
-    @SetUp(DELETE_ALL_TASKS, CREATE_ACTIVE_TASK)
+    @SetUp(DELETE_ALL_TASKS, CREATE_MANY_TASK)
     @Test
     fun assertTaskDisplayedTest() {
-        MainTaskScreen.assertTaskDisplayed(activeTask)
+        MainTaskScreen.assertTaskDisplayed()
     }
 
     //Filter Tests
@@ -103,13 +110,31 @@ class TaskActivityTest {
     @SetUp(DELETE_ALL_TASKS, CREATE_MANY_TASK, FILTER_ACTIVE)
     @Test
     fun assertFilterActiveTasksTest() {
-        MainTaskScreen.assertFilterTasks(false)
+            MainTaskScreen.assertFilterTasks(false)
+
     }
 
     @SetUp(DELETE_ALL_TASKS, CREATE_MANY_TASK, FILTER_COMPLETE)
     @Test
     fun assertFilterCompleteTasksTest() {
-        MainTaskScreen.assertFilterTasks(true)
+            MainTaskScreen.assertFilterTasks(true)
     }
+
+    @SetUp(DELETE_ALL_TASKS, CREATE_MANY_TASK, FILTER_ALL)
+    @Test
+    fun assertFilterAllTasksTest() {
+            MainTaskScreen.assertFilterAllTasks()
+    }
+
+    @SetUp(DELETE_ALL_TASKS, CREATE_ACTIVE_TASK)
+    @Test
+    fun assert() {
+        MainTaskScreen.addTasks()
+        Thread.sleep(5000)
+    }
+
+
+
+
 
 }

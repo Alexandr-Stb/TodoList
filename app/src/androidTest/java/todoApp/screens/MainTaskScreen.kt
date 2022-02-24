@@ -3,15 +3,17 @@ package todoApp.screens
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.atiurin.ultron.core.espresso.recyclerview.UltronRecyclerViewItem
 import com.atiurin.ultron.core.espresso.recyclerview.withRecyclerView
-import com.atiurin.ultron.extensions.click
-import com.atiurin.ultron.extensions.isChecked
-import com.atiurin.ultron.extensions.isDisplayed
-import com.atiurin.ultron.extensions.isNotChecked
+import com.atiurin.ultron.custom.espresso.action.getText
+import com.atiurin.ultron.extensions.*
 import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.data.Task
+import com.example.android.architecture.blueprints.todoapp.ServiceLocator
+import com.example.android.architecture.blueprints.todoapp.ServiceLocator.provideTasksRepository
+import com.example.android.architecture.blueprints.todoapp.data.source.DefaultTasksRepository
+import com.example.android.architecture.blueprints.todoapp.data.source.remote.TasksRemoteDataSource
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
 import todoApp.framework.FragDisplayed
-import todoApp.framework.TasksData
+import todoApp.framework.TasksData.countTasks
 
 object MainTaskScreen : FragDisplayed<MainTaskScreen> {
 
@@ -35,62 +37,48 @@ object MainTaskScreen : FragDisplayed<MainTaskScreen> {
         drawerBtn.click()
     }
 
-    fun openTaskDetails(task: Task) {
-        assertTaskDisplayed(task)
-        getTaskItem(task).click()
+    fun openTaskDetails() {
+        assertTaskDisplayed()
+        recyclerView.lastItem().click()
     }
 
-    fun assertTaskDisplayed(task: Task) {
-        if (task.isCompleted)
-            getTaskItem(task).getChild(completeCheckBox).isChecked()
-        else
-            getTaskItem(task).getChild(completeCheckBox).isNotChecked()
-    }
-
-    fun assertFilterTasks(isCompleted: Boolean) {
-        if (isCompleted) {
-            getTaskItem(getFirstLastTaskTitle(first = true, isComplete = true)!!)
-                .getChild(completeCheckBox).isChecked()
-            getTaskItem(getFirstLastTaskTitle(first = false, isComplete = true)!!)
-                .getChild(completeCheckBox).isChecked()
-        } else {
-            getTaskItem(getFirstLastTaskTitle(first = true, isComplete = false)!!)
-                .getChild(completeCheckBox).isNotChecked()
-            getTaskItem(getFirstLastTaskTitle(first = false, isComplete = false)!!)
-                .getChild(completeCheckBox).isNotChecked()
+    fun assertTaskDisplayed() {
+        val titleTask = recyclerView.lastItem(true).getChild(taskTitle).getText()
+        val task = runBlocking {
+            ServiceLocator.provideTasksRepository()
+                .getTask(titleTask)
+        }.toString()
+        if("true" in task) {
+            getTaskItem(titleTask).getChild(completeCheckBox).isChecked()
+        }else{
+            getTaskItem(titleTask).getChild(completeCheckBox).isNotChecked()
         }
     }
 
-    private fun getFirstLastTaskTitle(first: Boolean, isComplete: Boolean): Task? {
-        if (first) {
-            return when {
-                isComplete -> createSpecificTask(0)
-                else -> createSpecificTask(1)
-            }
-        } else {
-            when {
-                (isComplete && TasksData.countTasks % 2 == 0) ||
-                        (!isComplete && TasksData.countTasks % 2 != 0) -> return createSpecificTask(
-                    TasksData.countTasks
-                )
-
-                (isComplete && TasksData.countTasks % 2 != 0) ||
-                        (!isComplete && TasksData.countTasks % 2 == 0) -> return createSpecificTask(
-                    TasksData.countTasks - 1
-                )
-            }
+    fun addTasks(){
+        val task = runBlocking {
+            DefaultTasksRepository(TasksRemoteDataSource,provideTasksRepository()
         }
-        return null
     }
 
-    private fun createSpecificTask(num: Int): Task {
-        return Task("Task:$num", "Description task $num", true)
+    fun assertFilterTasks(CompleteTasks: Boolean) {
+        if (CompleteTasks) {
+            recyclerView.firstItem(true).getChild(completeCheckBox).isChecked()
+            recyclerView.lastItem(true).getChild(completeCheckBox).isChecked()
+        } else {
+            recyclerView.firstItem(true).getChild(completeCheckBox).isNotChecked()
+            recyclerView.lastItem(true).getChild(completeCheckBox).isNotChecked()
+        }
     }
 
-    private fun getTaskItem(task: Task): UltronRecyclerViewItem {
+    fun assertFilterAllTasks() {
+        recyclerView.item(countTasks,true).isDisplayed()
+    }
+
+    private fun getTaskItem(title:String): UltronRecyclerViewItem {
         val matcher = allOf(
             hasDescendant(
-                allOf(taskTitle, withText(task.title))
+                allOf(taskTitle, withText(title))
             )
         )
         return recyclerView.item(matcher)

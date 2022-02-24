@@ -39,7 +39,7 @@ object ServiceLocator {
     var tasksRepository: TasksRepository? = null
         @VisibleForTesting set
 
-    fun provideTasksRepository(context: Context): TasksRepository {
+    fun provideTasksRepository(): TasksRepository {
         synchronized(this) {
             return tasksRepository ?: tasksRepository ?: createTasksRepository(context)
         }
