@@ -16,7 +16,7 @@ import todoApp.framework.TasksData.countTasks
 import todoApp.screens.MainTaskScreen
 import kotlin.random.Random
 
-object SetupsMainTaskFrag {
+object SetupsMainTaskFrag:SetupsFrag<SetupsMainTaskFrag> {
     private val activityRule = ActivityTestRule(TasksActivity::class.java)
     private val filterBtn = withId(R.id.menu_filter)
     private val filterTitle = withId(R.id.title)
@@ -126,12 +126,16 @@ object SetupsMainTaskFrag {
         recyclerView.firstItem().getChild(completeCheckBox).click()
     }
 
-    private fun runActivity() {
+    private fun runActivity(){
         activityRule.runOnUiThread {
             runBlocking {
                 TasksRemoteDataSource.refreshTasks()
             }
         }
+    }
+
+    override fun openFrag()=apply{
+        //This fragment is the main
     }
 
 

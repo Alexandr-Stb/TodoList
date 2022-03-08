@@ -9,4 +9,9 @@ object TasksData {
     fun createTask(num:Int,isComplete:Boolean): Task {
         return Task("Task:$num", "Description task $num", isComplete,"Task:$num")
     }
+    val simpleTask = Task("Simple task","This simple task")
+    val longTask = Task("Long task,Long task,Long task,Long task","This long task,This long task,This long task,This long task,This long task,This long task,This long task,This long task")
+    val specifySymbolTask = Task("?:#&(#&","#&()&*$@(#&(+_)+_&*(!@#?{|}{<><>")
+    val emptyTitleTask = Task("","Description")
+    val emptyDescriptionTask = Task("Title","")
 }

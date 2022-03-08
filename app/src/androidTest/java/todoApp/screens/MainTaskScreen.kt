@@ -36,20 +36,21 @@ object MainTaskScreen : FragDisplayed<MainTaskScreen> {
         drawerBtn.click()
     }
 
-    fun openTaskDetails() {
-        assertTasksDisplayed()
+    fun openTaskDetails(task: Task) {
+        assertTaskDisplayed(task)
         recyclerView.lastItem().click()
     }
 
-
-    fun assertTasksDisplayed() {
-        val firstTask = getDB().first()
-        val lastTask = getDB().last()
-
-        assertTaskAndCheckBox(firstTask)
-        assertTaskAndCheckBox(lastTask)
+    fun assertAllTasks() {
+        assertTaskDisplayed(getDB().first())
+        assertTaskDisplayed(getDB().last())
     }
 
+    fun assertTaskDisplayed(task: Task) {
+        getTaskItem(assertTaskInDB(task.title)!!.title).isDisplayed()
+        assertCheckBox(task)
+        assertTaskInDB(task.title)
+    }
 
     fun assertFilterTasks(completeTasks: Boolean) {
         getDB().forEach {
@@ -58,42 +59,36 @@ object MainTaskScreen : FragDisplayed<MainTaskScreen> {
         }
     }
 
-    fun compareTaskInUIAndDB() {
-        if (!assertTaskInDB())
-            getTaskItem("this task was not found in the database")
-        else
-            getTaskItem(recyclerView.lastItem(true).getChild(taskTitle).getText())
-    }
-
-    fun assertClearCompletedTasks(){
+    fun assertClearCompletedTasks() {
         getDB().forEach {
             getTaskItem(it.title)
                 .getChild(completeCheckBox).isNotChecked()
         }
     }
 
-    fun assertTaskStateChange(){
+    fun assertTaskStateChange() {
         val firstTaskDB = getDB().first()
         val firstTask = getTaskItem(firstTaskDB.title)
         firstTask.getChild(completeCheckBox).click()
-        if(firstTask.getChild(completeCheckBox).isSuccess { withTimeout(1000).isChecked() }){
+        if (firstTask.getChild(completeCheckBox).isSuccess { withTimeout(1000).isChecked() }) {
             firstTask.getChild(completeCheckBox).click()
         }
-        if(firstTaskDB.isCompleted)
+        if (firstTaskDB.isCompleted)
             firstTask.getChild(completeCheckBox).isNotChecked()
         else
             firstTask.getChild(completeCheckBox).isChecked()
     }
 
-
-    private fun assertTaskInDB(): Boolean {
-        val title = recyclerView.lastItem().getChild(taskTitle).getText()
-        return (title == getDB().last().title)
+    private fun assertTaskInDB(title: String): Task? {
+        getDB().forEach {
+            if (it.title == title)
+                return it
+        }
+        return null
     }
 
     private fun getDB(): List<Task> {
         val task = runBlocking {
-//            TasksRemoteDataSource.getTasks()
             provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
                 .getTasks()
         }
@@ -109,15 +104,14 @@ object MainTaskScreen : FragDisplayed<MainTaskScreen> {
         return recyclerView.item(matcher)
     }
 
-    private fun assertTaskAndCheckBox(task:Task) {
+    private fun assertCheckBox(task: Task) {
         if (task.isCompleted)
-            getTaskItem(task.title).isDisplayed()
+            getTaskItem(task.title)
                 .getChild(completeCheckBox).isChecked()
         else
-            getTaskItem(task.title).isDisplayed()
+            getTaskItem(task.title)
                 .getChild(completeCheckBox).isNotChecked()
     }
-
 
     override fun fragIsDisplayed() = apply {
         allOf(toolbar, hasDescendant(toolbarTitle)).isDisplayed()

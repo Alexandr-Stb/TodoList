@@ -25,16 +25,9 @@ class TaskActivityTest {
         private const val FILTER_ACTIVE = "Filter active task"
         private const val FILTER_COMPLETE = "Filter complete task"
         private const val FILTER_ALL = "Filter all tasks"
-        private const val ADD_TASK = "Add task thought add-task-fragment"
         private const val CLEAR_COMPLETED = "Clear completed Task"
         private const val TASK_STATE_CHANGE = "Task state change"
     }
-
-    private val activityRule = ActivityTestRule(TasksActivity::class.java)
-
-    @get:Rule
-    val ruleSequence = RuleSequence()
-
 
     private val actionsBeforeUi = SetUpRule()
         .add(DELETE_ALL_TASKS) {
@@ -60,9 +53,6 @@ class TaskActivityTest {
         .add(FILTER_ALL) {
             SetupsMainTaskFrag.filterAllTasks()
         }
-        .add(ADD_TASK) {
-            SetupsMainTaskFrag.addTask()
-        }
         .add(CLEAR_COMPLETED) {
             SetupsMainTaskFrag.clearCompleted()
         }
@@ -70,6 +60,9 @@ class TaskActivityTest {
             SetupsMainTaskFrag.taskStateChange()
         }
 
+    private val activityRule = ActivityTestRule(TasksActivity::class.java)
+    @get:Rule
+    val ruleSequence = RuleSequence()
 
     init {
         ruleSequence.add(actionsBeforeUi, activityRule, actionsOnUi)
@@ -93,16 +86,16 @@ class TaskActivityTest {
     @SetUp(DELETE_ALL_TASKS, CREATE_ACTIVE_TASK)
     @Test
     fun openTaskDetailsFragTest() {
-        MainTaskScreen.openTaskDetails()
+        MainTaskScreen.openTaskDetails(activeTask)
         TaskDetailsFragment.fragIsDisplayed()
     }
 
     //Tasks Tests
 
-    @SetUp(DELETE_ALL_TASKS, CREATE_MANY_TASK)
+    @SetUp(DELETE_ALL_TASKS, CREATE_COMPLETE_TASK)
     @Test
     fun assertTaskDisplayedTest() {
-        MainTaskScreen.assertTasksDisplayed()
+        MainTaskScreen.assertTaskDisplayed(completeTask)
     }
 
     @SetUp(DELETE_ALL_TASKS, CREATE_MANY_TASK)
@@ -134,14 +127,6 @@ class TaskActivityTest {
     @SetUp(DELETE_ALL_TASKS, CREATE_MANY_TASK)
     @Test
     fun assertFilterAllTasksTest() {
-        MainTaskScreen.assertTasksDisplayed()
-    }
-
-    //DB Test
-
-    @SetUp(ADD_TASK)
-    @Test
-    fun assertTaskInDBTest() {
-        MainTaskScreen.compareTaskInUIAndDB()
+        MainTaskScreen.assertAllTasks()
     }
 }
