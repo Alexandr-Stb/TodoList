@@ -1,28 +1,20 @@
-package todoApp.screens
+package todoApp.fragment
 
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.platform.app.InstrumentationRegistry
 import com.atiurin.ultron.core.espresso.recyclerview.UltronRecyclerViewItem
 import com.atiurin.ultron.core.espresso.recyclerview.withRecyclerView
-import com.atiurin.ultron.custom.espresso.action.getText
 import com.atiurin.ultron.extensions.*
 import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.ServiceLocator.provideTasksRepository
-import com.example.android.architecture.blueprints.todoapp.data.Result
 import com.example.android.architecture.blueprints.todoapp.data.Task
-import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
-import todoApp.framework.FragDisplayed
+import todoApp.framework.TestData.editedTask
+import todoApp.framework.TestData.getDB
 
-object MainTaskScreen : FragDisplayed<MainTaskScreen> {
+object MainFragment : FragmentInterface<MainFragment> {
 
     private val toolbar = withId(R.id.toolbar)
     private val toolbarTitle = withText("Todo")
-    private val menuFilterBtn = withId(R.id.menu_filter)
-    private val menuBtn = withContentDescription("More options")
     private val drawerBtn = withContentDescription("Open navigation drawer")
-    private val filteringText = withId(R.id.filtering_text)
-    private val tasksList = withId(R.id.tasks_list)
     private val completeCheckBox = withId(R.id.complete_checkbox)
     private val taskTitle = withId(R.id.title_text)
     private val addTaskBtn = withId(R.id.add_task_fab)
@@ -37,19 +29,23 @@ object MainTaskScreen : FragDisplayed<MainTaskScreen> {
     }
 
     fun openTaskDetails(task: Task) {
-        assertTaskDisplayed(task)
+        assertTaskInUIAndDB(task)
         recyclerView.lastItem().click()
     }
 
     fun assertAllTasks() {
-        assertTaskDisplayed(getDB().first())
-        assertTaskDisplayed(getDB().last())
+        assertTaskInUIAndDB(getDB().first())
+        assertTaskInUIAndDB(getDB().last())
     }
 
-    fun assertTaskDisplayed(task: Task) {
+    fun assertTaskInUIAndDB(task: Task) {
         getTaskItem(assertTaskInDB(task.title)!!.title).isDisplayed()
         assertCheckBox(task)
         assertTaskInDB(task.title)
+    }
+
+    fun assertTaskInUI(){
+        getTaskItem(editedTask.title).isDisplayed()
     }
 
     fun assertFilterTasks(completeTasks: Boolean) {
@@ -85,14 +81,6 @@ object MainTaskScreen : FragDisplayed<MainTaskScreen> {
                 return it
         }
         return null
-    }
-
-    private fun getDB(): List<Task> {
-        val task = runBlocking {
-            provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
-                .getTasks()
-        }
-        return (task as Result.Success).data
     }
 
     private fun getTaskItem(title: String): UltronRecyclerViewItem {

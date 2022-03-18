@@ -1,4 +1,4 @@
-package todoApp.screens
+package todoApp.fragment
 
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.atiurin.ultron.extensions.click
@@ -7,9 +7,8 @@ import com.atiurin.ultron.extensions.replaceText
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import org.hamcrest.Matchers.allOf
-import todoApp.framework.FragDisplayed
 
-object AddTaskFragment : FragDisplayed<AddTaskFragment> {
+object AddTaskFragment : FragmentInterface<AddTaskFragment> {
 
     private val toolbar = withId(R.id.toolbar)
     private val toolbarText = withText(R.string.add_task)

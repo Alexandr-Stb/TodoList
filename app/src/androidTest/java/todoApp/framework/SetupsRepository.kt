@@ -12,14 +12,22 @@ import com.example.android.architecture.blueprints.todoapp.data.source.remote.Ta
 import com.example.android.architecture.blueprints.todoapp.tasks.TasksActivity
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
-import todoApp.framework.TasksData.countTasks
-import todoApp.screens.MainTaskScreen
+import todoApp.fragment.*
+import todoApp.framework.TestData.countTasks
 import kotlin.random.Random
 
-object SetupsMainTaskFrag:SetupsFrag<SetupsMainTaskFrag> {
+object SetupsRepository {
+    //Activity and recycler
     private val activityRule = ActivityTestRule(TasksActivity::class.java)
-    private val filterBtn = withId(R.id.menu_filter)
+    private val recyclerView = withRecyclerView(R.id.tasks_list)
+
+    //textView
     private val filterTitle = withId(R.id.title)
+    private val titleTask = withId(R.id.add_task_title_edit_text)
+    private val descriptionTask = withId(R.id.add_task_description_edit_text)
+
+    //Btn view
+    private val filterBtn = withId(R.id.menu_filter)
     private val filterAllTasksBtn = allOf(
         filterTitle, withText(R.string.nav_all)
     )
@@ -33,13 +41,14 @@ object SetupsMainTaskFrag:SetupsFrag<SetupsMainTaskFrag> {
         withId(R.id.title), withText(R.string.menu_clear)
     )
     private val addTaskBtn = withId(R.id.add_task_fab)
-    private val addTaskFragTitle = withId(R.id.add_task_description_edit_text)
-    private val addTaskFragDescription = withId(R.id.add_task_title_edit_text)
     private val saveTaskBtn = withId(R.id.save_task_fab)
     private val menuBtn = withContentDescription("More options")
-    private val recyclerView = withRecyclerView(R.id.tasks_list)
-    private val completeCheckBox = withId(R.id.complete_checkbox)
+    private val completeCheckBoxBtn = withId(R.id.complete_checkbox)
+    private val editTaskBtn = withId(R.id.edit_task_fab)
+    private val openDrawerBtn = withContentDescription("Open navigation drawer")
 
+
+    // universal functions
     fun deleteAllTask() {
         runActivity()
         runBlocking {
@@ -62,18 +71,39 @@ object SetupsMainTaskFrag:SetupsFrag<SetupsMainTaskFrag> {
             if (i % 2 == 0) {
                 runBlocking {
                     ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
-                        .saveTask(TasksData.createTask(i, true))
+                        .saveTask(TestData.createTask(i, true))
                 }
             } else {
                 runBlocking {
                     ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
-                        .saveTask(TasksData.createTask(i, false))
+                        .saveTask(TestData.createTask(i, false))
                 }
             }
         }
 
     }
 
+//statistics fragment
+    fun createRandomCompletedTasks(){
+        runActivity()
+        var randomNum = 0
+        for (i in 0..countTasks) {
+            randomNum = Random.nextInt(0,2)
+            if (randomNum == 0) {
+                runBlocking {
+                    ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
+                        .saveTask(TestData.createTask(i, true))
+                }
+            } else {
+                runBlocking {
+                    ServiceLocator.provideTasksRepository(InstrumentationRegistry.getInstrumentation().targetContext)
+                        .saveTask(TestData.createTask(i, false))
+                }
+            }
+        }
+    }
+
+//main fragment
     fun filterActiveTasks() {
         runActivity()
         filterBtn.click()
@@ -107,36 +137,57 @@ object SetupsMainTaskFrag:SetupsFrag<SetupsMainTaskFrag> {
         }
     }
 
-    fun addTask() {
-        runActivity()
-        addTaskBtn.click()
-        addTaskFragTitle.replaceText("${Random.nextInt(12)}")
-        addTaskFragDescription.replaceText("${Random.nextInt(12)}")
-        saveTaskBtn.click()
-    }
-
     fun clearCompleted() {
         runActivity()
         menuBtn.click()
         clearCompletedBtn.click()
     }
 
-    fun taskStateChange(){
+    fun taskStateChange() {
         runActivity()
-        recyclerView.firstItem().getChild(completeCheckBox).click()
+        recyclerView.firstItem().getChild(completeCheckBoxBtn).click()
     }
 
-    private fun runActivity(){
+//addTask fragment
+    fun addTask(task: Task) {
+        titleTask.replaceText(task.title)
+        descriptionTask.replaceText(task.description)
+        saveTaskBtn.click()
+    }
+
+    //open fragments
+
+    fun openDetailsFrag() {
+        recyclerView.firstItem().click()
+        TaskDetailsFragment.fragIsDisplayed()
+    }
+
+    fun openAddFragment() {
+        addTaskBtn.click()
+        AddTaskFragment.fragIsDisplayed()
+    }
+
+    fun openEditTaskFrag() {
+        editTaskBtn.click()
+        EditTaskFragment.fragIsDisplayed()
+    }
+
+    fun openDrawerFrag() {
+        openDrawerBtn.click()
+        DrawerFragment.fragIsDisplayed()
+    }
+
+    fun openStatisticsFrag() {
+        openDrawerFrag()
+        DrawerFragment.openStatisticFrag()
+        StatisticFragment.fragIsDisplayed()
+    }
+
+    private fun runActivity() {
         activityRule.runOnUiThread {
             runBlocking {
                 TasksRemoteDataSource.refreshTasks()
             }
         }
     }
-
-    override fun openFrag()=apply{
-        //This fragment is the main
-    }
-
-
 }

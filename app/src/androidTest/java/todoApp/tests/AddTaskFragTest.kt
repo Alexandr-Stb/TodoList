@@ -7,16 +7,15 @@ import com.atiurin.ultron.testlifecycle.setupteardown.SetUpRule
 import com.example.android.architecture.blueprints.todoapp.tasks.TasksActivity
 import org.junit.Rule
 import org.junit.Test
-import todoApp.framework.SetupsAddTaskFrag
-import todoApp.framework.TasksData.activeTask
-import todoApp.framework.TasksData.completeTask
-import todoApp.framework.TasksData.emptyDescriptionTask
-import todoApp.framework.TasksData.emptyTitleTask
-import todoApp.framework.TasksData.longTask
-import todoApp.framework.TasksData.simpleTask
-import todoApp.framework.TasksData.specifySymbolTask
-import todoApp.screens.AddTaskFragment
-import todoApp.screens.MainTaskScreen
+import todoApp.framework.SetupsRepository
+import todoApp.framework.TestData.activeTask
+import todoApp.framework.TestData.emptyDescriptionTask
+import todoApp.framework.TestData.emptyTitleTask
+import todoApp.framework.TestData.longTask
+import todoApp.framework.TestData.simpleTask
+import todoApp.framework.TestData.specifySymbolTask
+import todoApp.fragment.AddTaskFragment
+import todoApp.fragment.MainFragment
 
 class AddTaskFragTest {
     companion object{
@@ -28,10 +27,10 @@ class AddTaskFragTest {
 
     private val actionsInUi = SetUpRule()
         .add{
-            SetupsAddTaskFrag.openFrag()
+            SetupsRepository.openAddFragment()
         }
         .add(ADD_TASK){
-            SetupsAddTaskFrag.addTask(task)
+            SetupsRepository.addTask(task)
         }
 
     @get:Rule
@@ -43,13 +42,13 @@ class AddTaskFragTest {
     @SetUp(ADD_TASK)
     @Test
     fun assertTaskDisplayed(){
-        MainTaskScreen.assertTaskDisplayed(task)
+        MainFragment.assertTaskInUIAndDB(task)
     }
 
     @Test
     fun assertReturnBack(){
         AddTaskFragment.returnBack()
-        MainTaskScreen.fragIsDisplayed()
+        MainFragment.fragIsDisplayed()
     }
 
     @Test
@@ -72,22 +71,22 @@ class AddTaskFragTest {
     @Test
     fun assertSimpleTask(){
         AddTaskFragment.createTask(simpleTask)
-        MainTaskScreen.fragIsDisplayed()
-        MainTaskScreen.assertTaskDisplayed(simpleTask)
+        MainFragment.fragIsDisplayed()
+        MainFragment.assertTaskInUIAndDB(simpleTask)
     }
 
     @Test
     fun assertLongTask(){
         AddTaskFragment.createTask(longTask)
-        MainTaskScreen.fragIsDisplayed()
-        MainTaskScreen.assertTaskDisplayed(longTask)
+        MainFragment.fragIsDisplayed()
+        MainFragment.assertTaskInUIAndDB(longTask)
     }
 
     @Test
     fun assertSpecifyTask(){
         AddTaskFragment.createTask(specifySymbolTask)
-        MainTaskScreen.fragIsDisplayed()
-        MainTaskScreen.assertTaskDisplayed(specifySymbolTask)
+        MainFragment.fragIsDisplayed()
+        MainFragment.assertTaskInUIAndDB(specifySymbolTask)
     }
 
 }
